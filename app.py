@@ -326,7 +326,7 @@ st.markdown(
 )
 st.divider()
 
-tabs = st.tabs(["🗓️  Bracket & Séries", "⚔️  Confronto direto", "🏅  Jogadores", "📊  Ranking geral", "🎯  Simulação de série"])
+tabs = st.tabs(["🗓️  Bracket & Séries", "⚔️  Confronto direto", "🏅  Jogadores", "📊  Ranking geral", "🎯  Simulação de série", "🔥  Heatmap H2H"])
 
 # TAB 0 ── Bracket
 with tabs[0]:
@@ -478,6 +478,86 @@ with tabs[4]:
                        "Mando": pt1 if g % 2 == 1 else pt2} for g in range(1, 8)]
         st.dataframe(pd.DataFrame(games_data), use_container_width=True, hide_index=True)
         st.info("Dica: grave a tela nos cards de probabilidade — e o frame mais visual para o video.")
+
+# TAB 5 ── Heatmap H2H
+with tabs[5]:
+    st.markdown("<p class='section-title'>Probabilidade de vitória em série — todos os confrontos possíveis</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#8888aa;font-size:13px;margin-bottom:1rem'>Linha = time analisado · Coluna = adversário · Verde = favorito · Vermelho = underdog</p>", unsafe_allow_html=True)
+
+    conf_filter = st.radio("Filtrar por conferência", ["Todos", "Leste", "Oeste"], horizontal=True)
+
+    if conf_filter == "Leste":
+        heatmap_teams = [t for t in TEAM_NAMES if TEAMS[t]["conf"] == "Leste"]
+    elif conf_filter == "Oeste":
+        heatmap_teams = [t for t in TEAM_NAMES if TEAMS[t]["conf"] == "Oeste"]
+    else:
+        heatmap_teams = TEAM_NAMES
+
+    abbrs = [TEAMS[t]["abbr"] for t in heatmap_teams]
+    matrix = []
+    annotations = []
+
+    for i, t1 in enumerate(heatmap_teams):
+        row = []
+        for j, t2 in enumerate(heatmap_teams):
+            if t1 == t2:
+                row.append(50)
+            else:
+                s1, s2 = MOCK_STATS[t1], MOCK_STATS[t2]
+                diff = (s1["net_rtg"] - s2["net_rtg"]) + 3.5 \
+                     + (s1["rest_days"] - s2["rest_days"]) * 0.4 \
+                     + (s2["injuries"] - s1["injuries"]) * 1.2 \
+                     + (s1["clutch_net"] - s2["clutch_net"]) * 0.15
+                p = round(100 / (1 + np.exp(-diff * 0.15)))
+                row.append(p)
+            annotations.append(dict(
+                x=abbrs[j], y=abbrs[i],
+                text="—" if t1 == t2 else f"{row[-1]}%",
+                showarrow=False,
+                font=dict(size=10 if conf_filter == "Todos" else 12,
+                          color="white" if abs(row[-1] - 50) > 15 else "#cccccc"),
+            ))
+        matrix.append(row)
+
+    fig_hm = go.Figure(go.Heatmap(
+        z=matrix,
+        x=abbrs,
+        y=abbrs,
+        colorscale=[
+            [0.0,  "#8a1a1a"],
+            [0.2,  "#c03030"],
+            [0.35, "#e07070"],
+            [0.45, "#f5c6c6"],
+            [0.5,  "#2a2a3e"],
+            [0.55, "#a8dab5"],
+            [0.65, "#5aba7f"],
+            [0.8,  "#2e9e5b"],
+            [1.0,  "#1a6b3a"],
+        ],
+        zmin=0, zmax=100,
+        showscale=True,
+        colorbar=dict(
+            title="% vitória",
+            tickfont=dict(color="#aaa"),
+            titlefont=dict(color="#aaa"),
+            bgcolor="#0a0a0a",
+        ),
+        hovertemplate="<b>%{y}</b> vs %{x}<br>Probabilidade: <b>%{z}%</b><extra></extra>",
+    ))
+
+    fig_hm.update_layout(
+        annotations=annotations,
+        paper_bgcolor="#0a0a0a",
+        plot_bgcolor="#0a0a0a",
+        font=dict(color="#ccc"),
+        xaxis=dict(side="top", tickfont=dict(size=11), gridcolor="#1e1e3a"),
+        yaxis=dict(tickfont=dict(size=11), gridcolor="#1e1e3a", autorange="reversed"),
+        margin=dict(t=60, b=20, l=60, r=20),
+        height=560 if conf_filter == "Todos" else 420,
+    )
+
+    st.plotly_chart(fig_hm, use_container_width=True)
+    st.caption("Modelo: Net Rating · Mando de quadra · Descanso · Lesões · Clutch net rating")
 
 st.divider()
 st.markdown(
