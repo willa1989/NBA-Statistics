@@ -367,20 +367,20 @@ with tabs[1]:
         {
             "Time": t,
             "Conf": TEAMS[t]["conf"],
-            "Off Rtg": s["off_rtg"],
-            "Def Rtg": s["def_rtg"],
-            "Net Rtg": s["net_rtg"],
-            "Pace": s["pace"],
-            "TS%": s["ts_pct"],
-            "3P%": s["three_pct"],
-            "Reb%": s["reb_pct"],
-            "Clutch Net": s["clutch_net"],
-            "Lesões": s["injuries"],
+            "Ataque": round(s["off_rtg"], 1),
+            "Defesa": round(s["def_rtg"], 1),
+            "Saldo": round(s["net_rtg"], 1),
+            "Ritmo": round(s["pace"], 1),
+            "TS%": round(s["ts_pct"], 1),
+            "3P%": round(s["three_pct"], 1),
+            "Reb%": round(s["reb_pct"], 1),
+            "Clutch": round(s["clutch_net"], 1),
+            "Lesoes": s["injuries"],
         }
         for t, s in sorted(MOCK_STATS.items(), key=lambda x: x[1]["net_rtg"], reverse=True)
     ])
     st.dataframe(
-        df.style.background_gradient(subset=["Net Rtg"], cmap="RdYlGn"),
+        df.style.background_gradient(subset=["Saldo"], cmap="RdYlGn"),
         use_container_width=True, hide_index=True,
     )
 
