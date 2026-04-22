@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
@@ -392,45 +393,50 @@ with tabs[2]:
 
     st.markdown("<p class='section-title'>Top 5 — destaques da temporada 2025-26</p>", unsafe_allow_html=True)
 
-    top5_html = "<div style='display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:8px'>"
+    top5_html = """<div style='display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;
+      font-family:sans-serif;padding:4px 0'>"""
     for rank, p in enumerate(TOP5, 1):
         color = TEAMS[p["time"]]["color"]
         abbr  = TEAMS[p["time"]]["abbr"]
         ini   = "".join([w[0] for w in p["nome"].split()[:2]]).upper()
-        inj_mark = "<span style='color:#e84040;font-size:16px;font-weight:700' title='Lesionado'>✕</span>" if p["lesionado"] else ""
+        inj   = "<span style='color:#e84040;font-weight:700;margin-left:4px'>&#10005;</span>" if p["lesionado"] else ""
         top5_html += f"""
-        <div style='background:#1a1a2e;border-radius:14px;padding:16px;border:0.5px solid #2a2a4e;position:relative'>
-          <div style='position:absolute;top:10px;right:12px;font-size:22px;font-weight:800;color:#ffffff18'>#{rank}</div>
+        <div style='background:#1a1a2e;border-radius:14px;padding:16px;border:1px solid #2a2a4e;position:relative;'>
+          <div style='position:absolute;top:10px;right:12px;font-size:22px;font-weight:800;color:rgba(255,255,255,0.07)'>#{rank}</div>
           <div style='display:flex;align-items:center;gap:12px;margin-bottom:10px'>
-            <div style='width:52px;height:52px;border-radius:50%;background:{color}22;border:2px solid {color};
+            <div style='width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.06);border:2px solid {color};
               display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:{color};flex-shrink:0'>{ini}</div>
             <div>
-              <div style='color:#fff;font-weight:700;font-size:14px;line-height:1.3'>{p['nome']} {inj_mark}</div>
+              <div style='color:#fff;font-weight:700;font-size:14px;line-height:1.3'>{p["nome"]}{inj}</div>
               <div style='color:#8888aa;font-size:11px'>{abbr}</div>
             </div>
           </div>
-          <div style='display:flex;justify-content:space-between;margin-bottom:8px'>
+          <div style='display:flex;justify-content:space-between;margin-bottom:10px'>
             <div style='text-align:center'>
-              <div style='color:{color};font-size:18px;font-weight:800'>{p['pts']}</div>
-              <div style='color:#8888aa;font-size:10px;text-transform:uppercase'>PTS</div>
+              <div style='color:{color};font-size:18px;font-weight:800'>{p["pts"]}</div>
+              <div style='color:#8888aa;font-size:9px;text-transform:uppercase;letter-spacing:.05em'>PTS</div>
             </div>
             <div style='text-align:center'>
-              <div style='color:#5fb87f;font-size:18px;font-weight:800'>{p['reb']}</div>
-              <div style='color:#8888aa;font-size:10px;text-transform:uppercase'>REB</div>
+              <div style='color:#5fb87f;font-size:18px;font-weight:800'>{p["reb"]}</div>
+              <div style='color:#8888aa;font-size:9px;text-transform:uppercase;letter-spacing:.05em'>REB</div>
             </div>
             <div style='text-align:center'>
-              <div style='color:#f5a623;font-size:18px;font-weight:800'>{p['ast']}</div>
-              <div style='color:#8888aa;font-size:10px;text-transform:uppercase'>AST</div>
+              <div style='color:#f5a623;font-size:18px;font-weight:800'>{p["ast"]}</div>
+              <div style='color:#8888aa;font-size:9px;text-transform:uppercase;letter-spacing:.05em'>AST</div>
             </div>
             <div style='text-align:center'>
-              <div style='color:#b47fff;font-size:18px;font-weight:800'>{p['per']}</div>
-              <div style='color:#8888aa;font-size:10px;text-transform:uppercase'>PER</div>
+              <div style='color:#b47fff;font-size:18px;font-weight:800'>{p["per"]}</div>
+              <div style='color:#8888aa;font-size:9px;text-transform:uppercase;letter-spacing:.05em'>PER</div>
             </div>
           </div>
-          <div style='color:#8888aa;font-size:11px;border-top:0.5px solid #2a2a4e;padding-top:8px'>{p['desc']}</div>
+          <div style='color:#8888aa;font-size:11px;border-top:1px solid #2a2a4e;padding-top:8px;line-height:1.5'>{p["desc"]}</div>
         </div>"""
     top5_html += "</div>"
-    st.markdown(top5_html, unsafe_allow_html=True)
+    components.html(f"""
+      <div style='background:transparent;padding:0'>
+        {top5_html}
+      </div>
+    """, height=320, scrolling=False)
 
     st.divider()
 
@@ -444,55 +450,55 @@ with tabs[2]:
         if fig_p:
             st.plotly_chart(fig_p, use_container_width=True)
 
-        cards_html = "<div style='display:flex;flex-direction:column;gap:10px'>"
+        cards_html = "<div style='display:flex;flex-direction:column;gap:10px;font-family:sans-serif'>"
         for p in players:
             color = TEAMS[team_sel]["color"]
             ini   = "".join([w[0] for w in p["nome"].split()[:2]]).upper()
-            lesionado = "lesionado" in p["obs"].lower() or "lesao" in p["obs"].lower() or "lesões" in p["obs"].lower()
-            inj_html  = "<span style='background:#3a0a0a;color:#e84040;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600;margin-left:6px'>✕ Lesionado</span>" if lesionado else ""
+            lesionado = any(x in p["obs"].lower() for x in ["lesionado", "lesao", "lesões", "incerta"])
+            inj_html  = "<span style='background:#3a0a0a;color:#e84040;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600;margin-left:6px'>&#10005; Lesionado</span>" if lesionado else ""
             cards_html += f"""
-            <div style='background:#1a1a2e;border-radius:12px;padding:14px 16px;border:0.5px solid #2a2a4e;
+            <div style='background:#1a1a2e;border-radius:12px;padding:14px 16px;border:1px solid #2a2a4e;
               display:flex;align-items:center;gap:14px;flex-wrap:wrap'>
-              <div style='width:48px;height:48px;border-radius:50%;background:{color}22;border:2px solid {color};
+              <div style='width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.05);border:2px solid {color};
                 display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;
                 color:{color};flex-shrink:0'>{ini}</div>
               <div style='flex:1;min-width:160px'>
                 <div style='display:flex;align-items:center;gap:6px;flex-wrap:wrap'>
-                  <span style='color:#fff;font-weight:700;font-size:15px'>{p['nome']}</span>
-                  <span style='background:#0e2240;color:#4fa8ff;padding:2px 7px;border-radius:4px;font-size:11px'>{p['pos']}</span>
+                  <span style='color:#fff;font-weight:700;font-size:15px'>{p["nome"]}</span>
+                  <span style='background:#0e2240;color:#4fa8ff;padding:2px 7px;border-radius:4px;font-size:11px'>{p["pos"]}</span>
                   {inj_html}
                 </div>
-                <div style='color:#8888aa;font-size:12px;margin-top:4px'>{p['obs']}</div>
+                <div style='color:#8888aa;font-size:12px;margin-top:4px'>{p["obs"]}</div>
               </div>
-              <div style='display:flex;gap:18px;flex-wrap:wrap;align-items:center'>
+              <div style='display:flex;gap:16px;flex-wrap:wrap;align-items:center'>
                 <div style='text-align:center'>
-                  <div style='color:{color};font-size:20px;font-weight:800'>{p['pts']}</div>
-                  <div style='color:#8888aa;font-size:10px;text-transform:uppercase'>PTS</div>
-                </div>
-                <div style='text-align:center'>
-                  <div style='color:#5fb87f;font-size:20px;font-weight:800'>{p['reb']}</div>
-                  <div style='color:#8888aa;font-size:10px;text-transform:uppercase'>REB</div>
+                  <div style='color:{color};font-size:20px;font-weight:800'>{p["pts"]}</div>
+                  <div style='color:#8888aa;font-size:9px;text-transform:uppercase'>PTS</div>
                 </div>
                 <div style='text-align:center'>
-                  <div style='color:#f5a623;font-size:20px;font-weight:800'>{p['ast']}</div>
-                  <div style='color:#8888aa;font-size:10px;text-transform:uppercase'>AST</div>
+                  <div style='color:#5fb87f;font-size:20px;font-weight:800'>{p["reb"]}</div>
+                  <div style='color:#8888aa;font-size:9px;text-transform:uppercase'>REB</div>
                 </div>
-                <div style='text-align:center;min-width:48px'>
-                  <div style='color:#ccc;font-size:14px;font-weight:600'>{p['fg_pct']:.1f}%</div>
-                  <div style='color:#8888aa;font-size:10px;text-transform:uppercase'>FG</div>
+                <div style='text-align:center'>
+                  <div style='color:#f5a623;font-size:20px;font-weight:800'>{p["ast"]}</div>
+                  <div style='color:#8888aa;font-size:9px;text-transform:uppercase'>AST</div>
                 </div>
-                <div style='text-align:center;min-width:48px'>
-                  <div style='color:#ccc;font-size:14px;font-weight:600'>{p['ts_pct']:.1f}%</div>
-                  <div style='color:#8888aa;font-size:10px;text-transform:uppercase'>TS</div>
+                <div style='text-align:center;min-width:44px'>
+                  <div style='color:#ccc;font-size:13px;font-weight:600'>{p["fg_pct"]:.1f}%</div>
+                  <div style='color:#8888aa;font-size:9px;text-transform:uppercase'>FG</div>
                 </div>
-                <div style='text-align:center;min-width:40px'>
-                  <div style='color:#b47fff;font-size:14px;font-weight:600'>{p['per']:.1f}</div>
-                  <div style='color:#8888aa;font-size:10px;text-transform:uppercase'>PER</div>
+                <div style='text-align:center;min-width:44px'>
+                  <div style='color:#ccc;font-size:13px;font-weight:600'>{p["ts_pct"]:.1f}%</div>
+                  <div style='color:#8888aa;font-size:9px;text-transform:uppercase'>TS</div>
+                </div>
+                <div style='text-align:center;min-width:36px'>
+                  <div style='color:#b47fff;font-size:13px;font-weight:600'>{p["per"]:.1f}</div>
+                  <div style='color:#8888aa;font-size:9px;text-transform:uppercase'>PER</div>
                 </div>
               </div>
             </div>"""
         cards_html += "</div>"
-        st.markdown(cards_html, unsafe_allow_html=True)
+        components.html(cards_html, height=len(players) * 110 + 20, scrolling=False)
 
     st.divider()
     st.markdown("<p class='section-title'>Comparar jogadores entre dois times</p>", unsafe_allow_html=True)
