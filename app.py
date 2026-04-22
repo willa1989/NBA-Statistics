@@ -540,7 +540,6 @@ with tabs[5]:
             title="% vitória",
             tickfont=dict(color="#aaa"),
             titlefont=dict(color="#aaa"),
-            bgcolor="#0a0a0a",
         ),
         hovertemplate="<b>%{y}</b> vs %{x}<br>Probabilidade: <b>%{z}%</b><extra></extra>",
     ))
@@ -564,3 +563,4 @@ st.markdown(
     "<p style='color:#444;font-size:12px;text-align:center'>"
     "Temporada regular 2025-26 | NBA Playoffs 2026 — 1ª rodada | Atualizado 22/04/2026"
     "</p>", unsafe_allow_html=True)
+
