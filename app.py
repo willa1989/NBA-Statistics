@@ -535,13 +535,7 @@ with tabs[5]:
             [1.0,  "#1a6b3a"],
         ],
         zmin=0, zmax=100,
-        showscale=True,
-        colorbar=dict(
-            title="% vitória",
-            tickfont=dict(color="#aaa"),
-            titlefont=dict(color="#aaa"),
-            bgcolor="#0a0a0a",
-        ),
+        showscale=False,
         hovertemplate="<b>%{y}</b> vs %{x}<br>Probabilidade: <b>%{z}%</b><extra></extra>",
     ))
 
