@@ -382,35 +382,26 @@ with tabs[1]:
 # TAB 2 ── Jogadores
 with tabs[2]:
 
-    # ── Top 5 destaque da temporada ───────────────────────────────────────────
+    st.markdown("<p class='section-title'>Top 5 — destaques da temporada 2025-26</p>", unsafe_allow_html=True)
     TOP5 = [
         {"nome": "Shai Gilgeous-Alexander", "time": "Oklahoma City Thunder", "pts": 32.4, "reb": 5.2,  "ast": 6.8,  "per": 31.2, "lesionado": False, "desc": "MVP favorito · Líder em clutch points (175)"},
         {"nome": "Nikola Jokic",             "time": "Denver Nuggets",        "pts": 27.7, "reb": 12.9, "ast": 10.7, "per": 34.1, "lesionado": False, "desc": "1º a liderar NBA em rebotes e assistências na mesma temporada"},
         {"nome": "Victor Wembanyama",        "time": "San Antonio Spurs",     "pts": 25.0, "reb": 11.5, "ast": 3.8,  "per": 28.6, "lesionado": False, "desc": "DPOY unânime · Net rating +17 com ele em quadra"},
-        {"nome": "Kevin Durant",             "time": "San Antonio Spurs",     "pts": 27.9, "reb": 4.5,  "ast": 5.7,  "per": 26.8, "lesionado": False, "desc": "MVP contender aos 37 anos · Lider em pontos no 4T"},
+        {"nome": "Kevin Durant",             "time": "San Antonio Spurs",     "pts": 27.9, "reb": 4.5,  "ast": 5.7,  "per": 26.8, "lesionado": False, "desc": "MVP contender aos 37 anos · Líder em pontos no 4T"},
         {"nome": "Jaylen Brown",             "time": "Boston Celtics",        "pts": 23.9, "reb": 5.5,  "ast": 9.9,  "per": 22.8, "lesionado": False, "desc": "Carreira no nível de Finals MVP com Tatum fora"},
     ]
 
-    st.markdown("<p class='section-title'>Top 5 — destaques da temporada 2025-26</p>", unsafe_allow_html=True)
-
-    cols = st.columns(5)
-    for i, (p, col) in enumerate(zip(TOP5, cols)):
-        with col:
-            abbr  = TEAMS[p["time"]]["abbr"]
-            inj   = " 🚨" if p["lesionado"] else ""
-            st.markdown(f"**#{i+1} {p['nome']}**{inj}")
-            st.caption(f"{abbr}")
-            c1, c2 = st.columns(2)
-            c1.metric("PTS", p["pts"])
-            c2.metric("REB", p["reb"])
-            c3, c4 = st.columns(2)
-            c3.metric("AST", p["ast"])
-            c4.metric("PER", p["per"])
-            st.caption(p["desc"])
+    df_top5 = pd.DataFrame([{
+        "Rank": f"#{i+1}",
+        "Jogador": ("🚨 " if p["lesionado"] else "") + p["nome"],
+        "Time": TEAMS[p["time"]]["abbr"],
+        "PTS": p["pts"], "REB": p["reb"], "AST": p["ast"], "PER": p["per"],
+        "Destaque": p["desc"],
+    } for i, p in enumerate(TOP5)])
+    st.dataframe(df_top5, use_container_width=True, hide_index=True)
 
     st.divider()
 
-    # ── Cards por time ────────────────────────────────────────────────────────
     st.markdown("<p class='section-title'>Jogadores por time</p>", unsafe_allow_html=True)
     team_sel = st.selectbox("Selecione o time", TEAM_NAMES, key="team_players")
     players  = PLAYERS.get(team_sel, [])
@@ -420,28 +411,17 @@ with tabs[2]:
         if fig_p:
             st.plotly_chart(fig_p, use_container_width=True)
 
-        for p in players:
-            color = TEAMS[team_sel]["color"]
-            lesionado = any(x in p["obs"].lower() for x in ["lesionado", "lesao", "incerta"])
-            with st.container():
-                col_name, col_stats = st.columns([2, 3])
-                with col_name:
-                    inj_tag = " 🚨 LESIONADO" if lesionado else ""
-                    st.markdown(
-                        f"**{p['nome']}**{inj_tag}  \n"
-                        f"`{p['pos']}`  \n"
-                        f"<span style='color:#8888aa;font-size:12px'>{p['obs']}</span>",
-                        unsafe_allow_html=True
-                    )
-                with col_stats:
-                    c1, c2, c3, c4, c5, c6 = st.columns(6)
-                    c1.metric("PTS", p["pts"])
-                    c2.metric("REB", p["reb"])
-                    c3.metric("AST", p["ast"])
-                    c4.metric("FG%", f"{p['fg_pct']:.1f}")
-                    c5.metric("TS%", f"{p['ts_pct']:.1f}")
-                    c6.metric("PER", f"{p['per']:.1f}")
-                st.divider()
+        df_players_team = pd.DataFrame([{
+            "Jogador": ("🚨 " if any(x in p["obs"].lower() for x in ["lesionado", "lesao", "incerta"]) else "") + p["nome"],
+            "Pos": p["pos"],
+            "PTS": p["pts"], "REB": p["reb"], "AST": p["ast"],
+            "FG%": round(p["fg_pct"], 1), "TS%": round(p["ts_pct"], 1), "PER": round(p["per"], 1),
+            "Obs": p["obs"],
+        } for p in players])
+        st.dataframe(
+            df_players_team.style.background_gradient(subset=["PTS", "PER"], cmap="YlOrRd"),
+            use_container_width=True, hide_index=True
+        )
 
     st.divider()
     st.markdown("<p class='section-title'>Comparar jogadores entre dois times</p>", unsafe_allow_html=True)
