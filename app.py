@@ -380,31 +380,120 @@ with tabs[1]:
 
 # TAB 2 ── Jogadores
 with tabs[2]:
-    st.markdown("<p class='section-title'>Estatísticas dos jogadores-chave — temporada 2025-26</p>", unsafe_allow_html=True)
+
+    # ── Top 5 destaque da temporada ───────────────────────────────────────────
+    TOP5 = [
+        {"nome": "Shai Gilgeous-Alexander", "time": "Oklahoma City Thunder", "pts": 32.4, "reb": 5.2,  "ast": 6.8,  "per": 31.2, "lesionado": False, "desc": "MVP favorito · Líder em clutch points (175)"},
+        {"nome": "Nikola Jokic",             "time": "Denver Nuggets",        "pts": 27.7, "reb": 12.9, "ast": 10.7, "per": 34.1, "lesionado": False, "desc": "1º a liderar NBA em rebotes e assistências na mesma temporada"},
+        {"nome": "Victor Wembanyama",        "time": "San Antonio Spurs",     "pts": 25.0, "reb": 11.5, "ast": 3.8,  "per": 28.6, "lesionado": False, "desc": "DPOY unânime · Net rating +17 com ele em quadra"},
+        {"nome": "Kevin Durant",             "time": "San Antonio Spurs",     "pts": 27.9, "reb": 4.5,  "ast": 5.7,  "per": 26.8, "lesionado": False, "desc": "MVP contender aos 37 anos · Lider em pontos no 4T"},
+        {"nome": "Jaylen Brown",             "time": "Boston Celtics",        "pts": 23.9, "reb": 5.5,  "ast": 9.9,  "per": 22.8, "lesionado": False, "desc": "Carreira no nível de Finals MVP com Tatum fora"},
+    ]
+
+    st.markdown("<p class='section-title'>Top 5 — destaques da temporada 2025-26</p>", unsafe_allow_html=True)
+
+    top5_html = "<div style='display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:8px'>"
+    for rank, p in enumerate(TOP5, 1):
+        color = TEAMS[p["time"]]["color"]
+        abbr  = TEAMS[p["time"]]["abbr"]
+        ini   = "".join([w[0] for w in p["nome"].split()[:2]]).upper()
+        inj_mark = "<span style='color:#e84040;font-size:16px;font-weight:700' title='Lesionado'>✕</span>" if p["lesionado"] else ""
+        top5_html += f"""
+        <div style='background:#1a1a2e;border-radius:14px;padding:16px;border:0.5px solid #2a2a4e;position:relative'>
+          <div style='position:absolute;top:10px;right:12px;font-size:22px;font-weight:800;color:#ffffff18'>#{rank}</div>
+          <div style='display:flex;align-items:center;gap:12px;margin-bottom:10px'>
+            <div style='width:52px;height:52px;border-radius:50%;background:{color}22;border:2px solid {color};
+              display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:{color};flex-shrink:0'>{ini}</div>
+            <div>
+              <div style='color:#fff;font-weight:700;font-size:14px;line-height:1.3'>{p['nome']} {inj_mark}</div>
+              <div style='color:#8888aa;font-size:11px'>{abbr}</div>
+            </div>
+          </div>
+          <div style='display:flex;justify-content:space-between;margin-bottom:8px'>
+            <div style='text-align:center'>
+              <div style='color:{color};font-size:18px;font-weight:800'>{p['pts']}</div>
+              <div style='color:#8888aa;font-size:10px;text-transform:uppercase'>PTS</div>
+            </div>
+            <div style='text-align:center'>
+              <div style='color:#5fb87f;font-size:18px;font-weight:800'>{p['reb']}</div>
+              <div style='color:#8888aa;font-size:10px;text-transform:uppercase'>REB</div>
+            </div>
+            <div style='text-align:center'>
+              <div style='color:#f5a623;font-size:18px;font-weight:800'>{p['ast']}</div>
+              <div style='color:#8888aa;font-size:10px;text-transform:uppercase'>AST</div>
+            </div>
+            <div style='text-align:center'>
+              <div style='color:#b47fff;font-size:18px;font-weight:800'>{p['per']}</div>
+              <div style='color:#8888aa;font-size:10px;text-transform:uppercase'>PER</div>
+            </div>
+          </div>
+          <div style='color:#8888aa;font-size:11px;border-top:0.5px solid #2a2a4e;padding-top:8px'>{p['desc']}</div>
+        </div>"""
+    top5_html += "</div>"
+    st.markdown(top5_html, unsafe_allow_html=True)
+
+    st.divider()
+
+    # ── Cards por time ────────────────────────────────────────────────────────
+    st.markdown("<p class='section-title'>Jogadores por time</p>", unsafe_allow_html=True)
     team_sel = st.selectbox("Selecione o time", TEAM_NAMES, key="team_players")
-    players = PLAYERS.get(team_sel, [])
+    players  = PLAYERS.get(team_sel, [])
+
     if players:
         fig_p = player_chart(team_sel)
         if fig_p:
             st.plotly_chart(fig_p, use_container_width=True)
+
+        cards_html = "<div style='display:flex;flex-direction:column;gap:10px'>"
         for p in players:
             color = TEAMS[team_sel]["color"]
-            st.markdown(
-                f"<div style='background:#1a1a2e;border-radius:12px;padding:14px 18px;margin:8px 0;"
-                f"border-left:4px solid {color}'>"
-                f"<div style='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px'>"
-                f"<div><span style='color:#fff;font-weight:700;font-size:15px'>{p['nome']}</span>"
-                f"&nbsp;<span style='background:#0e2240;color:#4fa8ff;padding:2px 8px;border-radius:4px;font-size:11px'>{p['pos']}</span></div>"
-                f"<div style='display:flex;gap:14px;color:#ccc;font-size:13px;flex-wrap:wrap'>"
-                f"<span><b style='color:{color}'>{p['pts']}</b> pts</span>"
-                f"<span><b style='color:#5fb87f'>{p['reb']}</b> reb</span>"
-                f"<span><b style='color:#f5a623'>{p['ast']}</b> ast</span>"
-                f"<span><b>{p['fg_pct']:.1f}%</b> FG</span>"
-                f"<span><b>{p['ts_pct']:.1f}%</b> TS</span>"
-                f"<span><b>{p['per']:.1f}</b> PER</span>"
-                f"</div></div>"
-                f"<p style='color:#8888aa;font-size:12px;margin:6px 0 0'>{p['obs']}</p>"
-                f"</div>", unsafe_allow_html=True)
+            ini   = "".join([w[0] for w in p["nome"].split()[:2]]).upper()
+            lesionado = "lesionado" in p["obs"].lower() or "lesao" in p["obs"].lower() or "lesões" in p["obs"].lower()
+            inj_html  = "<span style='background:#3a0a0a;color:#e84040;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600;margin-left:6px'>✕ Lesionado</span>" if lesionado else ""
+            cards_html += f"""
+            <div style='background:#1a1a2e;border-radius:12px;padding:14px 16px;border:0.5px solid #2a2a4e;
+              display:flex;align-items:center;gap:14px;flex-wrap:wrap'>
+              <div style='width:48px;height:48px;border-radius:50%;background:{color}22;border:2px solid {color};
+                display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;
+                color:{color};flex-shrink:0'>{ini}</div>
+              <div style='flex:1;min-width:160px'>
+                <div style='display:flex;align-items:center;gap:6px;flex-wrap:wrap'>
+                  <span style='color:#fff;font-weight:700;font-size:15px'>{p['nome']}</span>
+                  <span style='background:#0e2240;color:#4fa8ff;padding:2px 7px;border-radius:4px;font-size:11px'>{p['pos']}</span>
+                  {inj_html}
+                </div>
+                <div style='color:#8888aa;font-size:12px;margin-top:4px'>{p['obs']}</div>
+              </div>
+              <div style='display:flex;gap:18px;flex-wrap:wrap;align-items:center'>
+                <div style='text-align:center'>
+                  <div style='color:{color};font-size:20px;font-weight:800'>{p['pts']}</div>
+                  <div style='color:#8888aa;font-size:10px;text-transform:uppercase'>PTS</div>
+                </div>
+                <div style='text-align:center'>
+                  <div style='color:#5fb87f;font-size:20px;font-weight:800'>{p['reb']}</div>
+                  <div style='color:#8888aa;font-size:10px;text-transform:uppercase'>REB</div>
+                </div>
+                <div style='text-align:center'>
+                  <div style='color:#f5a623;font-size:20px;font-weight:800'>{p['ast']}</div>
+                  <div style='color:#8888aa;font-size:10px;text-transform:uppercase'>AST</div>
+                </div>
+                <div style='text-align:center;min-width:48px'>
+                  <div style='color:#ccc;font-size:14px;font-weight:600'>{p['fg_pct']:.1f}%</div>
+                  <div style='color:#8888aa;font-size:10px;text-transform:uppercase'>FG</div>
+                </div>
+                <div style='text-align:center;min-width:48px'>
+                  <div style='color:#ccc;font-size:14px;font-weight:600'>{p['ts_pct']:.1f}%</div>
+                  <div style='color:#8888aa;font-size:10px;text-transform:uppercase'>TS</div>
+                </div>
+                <div style='text-align:center;min-width:40px'>
+                  <div style='color:#b47fff;font-size:14px;font-weight:600'>{p['per']:.1f}</div>
+                  <div style='color:#8888aa;font-size:10px;text-transform:uppercase'>PER</div>
+                </div>
+              </div>
+            </div>"""
+        cards_html += "</div>"
+        st.markdown(cards_html, unsafe_allow_html=True)
+
     st.divider()
     st.markdown("<p class='section-title'>Comparar jogadores entre dois times</p>", unsafe_allow_html=True)
     cmp1, cmp2 = st.columns(2)
@@ -425,18 +514,80 @@ with tabs[2]:
 with tabs[3]:
     st.markdown("<p class='section-title'>Net Rating — temporada regular 2025-26</p>", unsafe_allow_html=True)
     st.plotly_chart(leaderboard_chart(), use_container_width=True)
-    df = pd.DataFrame([
-        {"Time": t, "Conf": TEAMS[t]["conf"], "Seed": TEAMS[t]["seed"],
-         "Campanha": f"{s['wins']}-{s['losses']}",
-         "Ataque": round(s["off_rtg"], 1), "Defesa": round(s["def_rtg"], 1),
-         "Saldo": round(s["net_rtg"], 1), "Ritmo": round(s["pace"], 1),
-         "TS%": round(s["ts_pct"], 1), "3P%": round(s["three_pct"], 1),
-         "Reb%": round(s["reb_pct"], 1), "Clutch": round(s["clutch_net"], 1),
-         "Lesoes": s["injuries"]}
-        for t, s in sorted(MOCK_STATS.items(), key=lambda x: x[1]["net_rtg"], reverse=True)
-    ])
-    st.dataframe(df.style.background_gradient(subset=["Saldo"], cmap="RdYlGn"),
-                 use_container_width=True, hide_index=True)
+
+    st.markdown("<p class='section-title'>Tabela completa de métricas</p>", unsafe_allow_html=True)
+
+    sorted_teams = sorted(MOCK_STATS.items(), key=lambda x: x[1]["net_rtg"], reverse=True)
+
+    def saldo_color(v):
+        if v >= 12: return "#1a6b3a", "#fff"
+        if v >= 8:  return "#2e9e5b", "#fff"
+        if v >= 5:  return "#5aba7f", "#fff"
+        if v >= 2:  return "#a8dab5", "#27500A"
+        if v >= 0:  return "#d4edda", "#27500A"
+        return "#f5c6c6", "#8a1a1a"
+
+    def inj_badge(n):
+        if n == 0: return "<span style='color:#5aba7f;font-weight:600'>0</span>"
+        if n == 1: return "<span style='color:#f5a623;font-weight:600'>1</span>"
+        return f"<span style='color:#e84040;font-weight:600'>{n}</span>"
+
+    rows_html = ""
+    for i, (t, s) in enumerate(sorted_teams):
+        conf = TEAMS[t]["conf"]
+        seed = TEAMS[t]["seed"]
+        color = TEAMS[t]["color"]
+        bg = "#1a1a2e" if i % 2 == 0 else "#141428"
+        sc, stc = saldo_color(s["net_rtg"])
+        conf_badge_bg = "#0c2240" if conf == "Oeste" else "#1a0c30"
+        conf_badge_col = "#4fa8ff" if conf == "Oeste" else "#b47fff"
+        rows_html += f"""
+        <tr style='background:{bg}'>
+          <td style='padding:10px 12px;white-space:nowrap'>
+            <span style='display:inline-block;width:4px;height:28px;background:{color};border-radius:2px;vertical-align:middle;margin-right:8px'></span>
+            <span style='color:#fff;font-weight:500;font-size:13px'>{t}</span>
+          </td>
+          <td style='padding:10px 8px;text-align:center'>
+            <span style='background:{conf_badge_bg};color:{conf_badge_col};font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500'>{conf}</span>
+          </td>
+          <td style='padding:10px 8px;text-align:center;color:#8888aa;font-size:13px'>#{seed}</td>
+          <td style='padding:10px 8px;text-align:center;color:#ccc;font-size:13px;font-weight:500'>{s['wins']}-{s['losses']}</td>
+          <td style='padding:10px 8px;text-align:center;color:#ccc;font-size:13px'>{round(s['off_rtg'],1)}</td>
+          <td style='padding:10px 8px;text-align:center;color:#ccc;font-size:13px'>{round(s['def_rtg'],1)}</td>
+          <td style='padding:10px 8px;text-align:center'>
+            <span style='background:{sc};color:{stc};font-weight:700;font-size:13px;padding:3px 10px;border-radius:6px'>{round(s['net_rtg'],1):+}</span>
+          </td>
+          <td style='padding:10px 8px;text-align:center;color:#ccc;font-size:13px'>{round(s['pace'],1)}</td>
+          <td style='padding:10px 8px;text-align:center;color:#ccc;font-size:13px'>{round(s['ts_pct'],1)}%</td>
+          <td style='padding:10px 8px;text-align:center;color:#ccc;font-size:13px'>{round(s['three_pct'],1)}%</td>
+          <td style='padding:10px 8px;text-align:center;color:#ccc;font-size:13px'>{round(s['clutch_net'],1):+}</td>
+          <td style='padding:10px 8px;text-align:center'>{inj_badge(s['injuries'])}</td>
+        </tr>"""
+
+    table_html = f"""
+    <div style='overflow-x:auto;border-radius:12px;border:0.5px solid #1e1e3a'>
+      <table style='width:100%;border-collapse:collapse;font-family:var(--font-sans)'>
+        <thead>
+          <tr style='background:#0e0e1e;border-bottom:1px solid #1e1e3a'>
+            <th style='padding:10px 12px;text-align:left;color:#8888aa;font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase'>Time</th>
+            <th style='padding:10px 8px;text-align:center;color:#8888aa;font-size:11px;font-weight:500;text-transform:uppercase'>Conf</th>
+            <th style='padding:10px 8px;text-align:center;color:#8888aa;font-size:11px;font-weight:500;text-transform:uppercase'>Seed</th>
+            <th style='padding:10px 8px;text-align:center;color:#8888aa;font-size:11px;font-weight:500;text-transform:uppercase'>Campanha</th>
+            <th style='padding:10px 8px;text-align:center;color:#8888aa;font-size:11px;font-weight:500;text-transform:uppercase'>Ataque</th>
+            <th style='padding:10px 8px;text-align:center;color:#8888aa;font-size:11px;font-weight:500;text-transform:uppercase'>Defesa</th>
+            <th style='padding:10px 8px;text-align:center;color:#8888aa;font-size:11px;font-weight:500;text-transform:uppercase'>Saldo</th>
+            <th style='padding:10px 8px;text-align:center;color:#8888aa;font-size:11px;font-weight:500;text-transform:uppercase'>Ritmo</th>
+            <th style='padding:10px 8px;text-align:center;color:#8888aa;font-size:11px;font-weight:500;text-transform:uppercase'>TS%</th>
+            <th style='padding:10px 8px;text-align:center;color:#8888aa;font-size:11px;font-weight:500;text-transform:uppercase'>3P%</th>
+            <th style='padding:10px 8px;text-align:center;color:#8888aa;font-size:11px;font-weight:500;text-transform:uppercase'>Clutch</th>
+            <th style='padding:10px 8px;text-align:center;color:#8888aa;font-size:11px;font-weight:500;text-transform:uppercase'>Lesões</th>
+          </tr>
+        </thead>
+        <tbody>{rows_html}</tbody>
+      </table>
+    </div>"""
+
+    st.markdown(table_html, unsafe_allow_html=True)
 
 # TAB 4 ── Simulação
 with tabs[4]:
