@@ -185,6 +185,11 @@ def radar_chart(t1: str, t2: str):
             normalize(s["clutch_net"], -5, 15),
         ]
 
+    def hex_to_rgba(hex_color, alpha=0.25):
+        h = hex_color.lstrip("#")
+        r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+        return f"rgba({r},{g},{b},{alpha})"
+
     v1, v2 = vals(s1), vals(s2)
     c1, c2 = TEAMS[t1]["color"], TEAMS[t2]["color"]
 
@@ -195,7 +200,7 @@ def radar_chart(t1: str, t2: str):
         fig.add_trace(go.Scatterpolar(
             r=vals_closed, theta=cats_closed, fill="toself",
             name=name, line=dict(color=color, width=2),
-            fillcolor=color + "40",
+            fillcolor=hex_to_rgba(color, 0.25),
         ))
 
     fig.update_layout(
